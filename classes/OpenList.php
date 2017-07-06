@@ -161,6 +161,11 @@ VALUES ("@owner", "@library_code")
   /**
    * Call a public module method.
    *
+   * Modules are plugins that add sematics to the incoming lists and elements
+   * Currently implemented modules:
+   * @see TingObjectRating
+   * @see LoanHistory
+   *
    * @param string $module_name
    *   The exact name of the module (case sensitive).
    * @param string $method

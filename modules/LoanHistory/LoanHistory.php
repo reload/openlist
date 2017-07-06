@@ -7,6 +7,7 @@
  * OpenList Module LoanHistory
  *
  * Handle similarities in loan patterns
+ * See OpenList::callModule() For how to invoke module functions
  *
  */
 class LoanHistory extends Module {

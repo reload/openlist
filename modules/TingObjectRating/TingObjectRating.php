@@ -7,6 +7,7 @@
  * OpenList Module TingObjectRating
  *
  * Handle ratings of materials
+ * @see OpenList::callModule()
  *
  */
 class TingObjectRating extends Module {
