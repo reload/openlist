@@ -1,20 +1,29 @@
 <?php
-
 /**
- * @file
- * Primary class.
+ * OpenList API
  */
 
+/**
+ * OpenList API class
+ */
 class OpenList {
   /**
    * The span between weights.
+   * @ignore
    */
   const WEIGHT_SPAN = 32;
 
+  /**
+   * Singleton instance during full request.
+   * @ignore
+   */
   public static $instance = NULL;
 
   /**
    * Constructor.
+   *
+   * @ignore
+   *
    */
   public function __construct() {
     self::$instance = $this;
@@ -423,7 +432,7 @@ WHERE
   }
 
   /**
-   * Get a list of lists depending on the owner.
+   * Get a list of all lists owned by the owner.
    *
    * @param string $owner
    *   The owner id.

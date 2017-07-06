@@ -3,18 +3,22 @@
  * @file
  * Boot.
  */
+require_once OPENLIST_ROOT . '/utils.php';
 
 $GLOBALS['library_code'] = isset($_COOKIE['library_code']) ?
   $_COOKIE['library_code'] : (isset($_GET['library_code']) ?
     $_GET['library_code'] : FALSE);
+
 if (!isset($library_codes[$GLOBALS['library_code']])) {
   $out = array('OpenList V1.0');
+  $out[] = 'Name:' . OPENLIST_INSTANCE_NAME;
   require_once OPENLIST_CLASSES_PATH . '/DB.php';
   $result = DB::q('SELECT VERSION();');
   if ($result) {
-    $out[] = 'Status: OK';
+    $out[] = 'Status:OK';
   }
-
+  $out[] = 'Servertime:' . gmdate('D, d M Y H:i:s \G\M\T', time());
+  send_cache_headers(1);
   exit(implode("<br>\n", $out));
 }
 
@@ -24,7 +28,6 @@ require_once OPENLIST_CLASSES_PATH . '/EventHandler.php';
 require_once OPENLIST_CLASSES_PATH . '/Admin.php';
 require_once OPENLIST_CLASSES_PATH . '/OpenList.php';
 require_once OPENLIST_CLASSES_PATH . '/OpenListDecorator.php';
-require_once OPENLIST_ROOT . '/utils.php';
 
 require_once MODULES_LIST_FILE;
 

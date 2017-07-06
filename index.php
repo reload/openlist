@@ -1,9 +1,13 @@
 <?php
+/**
+ * Openlist index file | index.php
+ *
+ * @package     Openlist
+ * @author      B14
+ * @version     1.0
+ */
 
 /**
- * @file
- * Main file.
- *
  * WSDL:
  * http://code.google.com/p/php-wsdl-creator/
  * http://framework.zend.com/manual/en/zend.soap.html

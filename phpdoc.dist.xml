@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>OpenList API doc</title>
+    <parser>
+        <target>doc</target>
+        <encoding>utf8</encoding>
+        <extensions>
+            <extension>php</extension>
+            <extension>php3</extension>
+            <extension>phtml</extension>
+        </extensions>
+        <visibility></visibility>
+    </parser>
+    <transformer>
+        <target>doc</target>
+    </transformer>
+    <transformations>
+        <template name="responsive" />
+    </transformations>
+    <files>
+        <file>classes/OpenList.php</file>
+        <file>bin/*</file>
+        <directory>classes</directory>
+        <ignore>test/*</ignore>
+    </files>
+</phpdoc>
