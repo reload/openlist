@@ -21,6 +21,11 @@ Each library may implement an open_list client on their website and thereby shar
 ## API docs
   http://test.openlist.ddbcms.dk/doc/classes/OpenList.html
 
+  http://test.openlist.ddbcms.dk/doc
+
+## WSDL in test environment
+  http://test.openlist.ddbcms.dk/?wsdl
+
 ## Example implementation Ding2 / DDBCMS client
   https://github.com/ding2/ding2/tree/master/modules/p2/ting_openlist
 

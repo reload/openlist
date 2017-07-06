@@ -1,11 +1,19 @@
 <?php
-
 /**
- * @file
- * Ting Object Ratings module.
+ * Ting Object Ratings module
  */
 
+/**
+ * OpenList Module TingObjectRating
+ *
+ * Handle ratings of materials
+ *
+ */
 class TingObjectRating extends Module {
+  /**
+   * Module version.
+   * @ignore
+   */
   public $version = 1;
 
   /**
@@ -15,6 +23,7 @@ class TingObjectRating extends Module {
 
   /**
    * Abstract getEvents().
+   * @ignore
    */
   public function getEvents() {
     return array(
@@ -27,8 +36,22 @@ class TingObjectRating extends Module {
 
   /**
    * Get popular objects.
+   *
+   * @param string $month 
+   *   The month to retreive popular materials from in the format YYYYMM
+   * @param string $libcode
+   *   Optional library code, default is all libraries
+   * @param int $limit
+   *   Limit  number of materials to return (max 256)
    */
   public function getPopular($month, $libcode = FALSE, $limit = 10) {
+    if ($limit > 256) {
+      $limit = 256;
+    }
+    if ($limit < 0) {
+      $limit = 1;
+    }
+
     if ($libcode !== FALSE) {
       $libcode_where = '
   AND library_code = "@libcode"';
@@ -68,7 +91,12 @@ LIMIT 0, !limit',
   }
 
   /**
-   * Get suggestions, depending on a given object.
+   * Get suggestions, depending on a given object_id based on similar high ratings. (ADHR)
+   *
+   * @param string $object_id 
+   *   The object_id to fetch ADHR suggestions for.
+   * @param string $owner
+   *   Optionally exclude this owner from aggregated results.
    */
   public function getSuggestion($object_id, $owner = FALSE) {
     if ($owner !== FALSE) {
@@ -105,7 +133,10 @@ GROUP BY
   }
 
   /**
-   * Get an object rating.
+   * Get an object aggregated rating.
+   *
+   * @param string $object_id 
+   *   The object_id to fetch aggregated rating for
    */
   public function getRating($object_id) {
     $result = DB::q('
@@ -125,6 +156,7 @@ GROUP BY
 
   /**
    * Get rated objects from a specific date.
+   * @ignore
    */
   public function getRated($date = FALSE) {
 
@@ -158,6 +190,7 @@ ORDER BY
 
   /**
    * On element deleted.
+   * @ignore
    */
   protected function onDeleteElement($element_id) {
     $result = DB::q('
@@ -196,6 +229,7 @@ WHERE
 
   /**
    * On element edited.
+   * @ignore
    */
   protected function onEditElement($element_id, $data) {
     if ($data['type'] == 'ting_object'
@@ -228,6 +262,7 @@ VALUES ("@owner", "@object_id", %rating, @date, "@library_code")
 
   /**
    * On element created.
+   * @ignore
    */
   protected function onElementCreated($element_id, $list_id, $data) {
     if ($data['type'] == 'ting_object'
@@ -260,6 +295,7 @@ VALUES ("@owner", "@object_id", %rating, @date, "@library_code")
 
   /**
    * Decrease the popularity.
+   * @ignore
    */
   protected function cron($arg) {
     // This cron only triggers on an "hour" cron.
@@ -272,6 +308,7 @@ VALUES ("@owner", "@object_id", %rating, @date, "@library_code")
 
   /**
    * Create the module table on install.
+   * @ignore
    */
   protected function _install() {
     DB::q('
@@ -291,6 +328,7 @@ CREATE TABLE IF NOT EXISTS !table (
 
   /**
    * Remove the module table on uninstall.
+   * @ignore
    */
   protected function _uninstall() {
     DB::q('DROP TABLE IF EXISTS !table', array('!table' => $this->table));

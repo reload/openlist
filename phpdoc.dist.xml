@@ -19,6 +19,8 @@
     </transformations>
     <files>
         <file>classes/OpenList.php</file>
+        <file>modules/TingObjectRating/TingObjectRating.php</file>
+        <file>modules/LoanHistory/LoanHistory.php</file>
         <file>bin/*</file>
         <directory>classes</directory>
         <ignore>test/*</ignore>

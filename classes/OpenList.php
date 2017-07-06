@@ -1,10 +1,48 @@
 <?php
 /**
- * OpenList API
+ * OpenList API Class
  */
 
 /**
  * OpenList API class
+ *
+ * ## About the OpenList service
+ * OpenList is a general purpose micro storage for cross site sharing of user data
+ * for danish library services.
+ *
+ * ## List types
+ * Currently OpenList supports the following predefined *list types* per user (owner):
+ * - follow_author : Followed authors (CQL)
+ * - user_searches : Followed search strings (CQL)
+ * - lists_list : (OpenList List ID)
+ * - ratings : Rated materials (TingMaterial ID)
+ * - user_loan_history : Loan history (TingMaterial ID)
+ * - remember: Read later materials (TingMaterial ID)
+ * - books_read : Read materials (TingMaterial ID)
+ * - user_list : Personal material list (TingMaterial ID)
+ *
+ * Clients can define custom list types 
+ *
+ * ## Identification of users
+ * 
+ * Users are identified in OpenList by the *owner*-id which should be a sha256 hash of a local id salted
+ * by a local prefix.
+ *
+ * Example (PHP).
+ * ```php
+ * hash('sha512', $local_prefix . $local_id);
+ * ```
+ * In ding2 the openlist module (https://github.com/ding2/ding2/tree/master/modules/p2/ting_openlist) 
+ * implements a PHP client to the OpenList service and syncronizes with local Drupal entities.
+ * From the local unique Drupal user name the OpenList identifier (owner) is created via prefix salting:
+ * https://github.com/ding2/ding2/blob/master/modules/p2/ting_openlist/ting_openlist.module#L466
+ *
+ * Do not use CPR, Drupal uid, Cicero/Alma Loaner Id or similar local id's for user identification.
+ * 
+ * ## Testing the service
+ * 
+ * The API functions can be tested in the OpenList test client: http://test.openlist.ddbcms.dk/tools/client/
+ *
  */
 class OpenList {
   /**
@@ -41,6 +79,10 @@ class OpenList {
       $i++;
       if (empty($arg)) {
         self::error('The ' . $title . ' argument (argument ' . $i . ') is required.');
+      }
+      // Require strong
+      if($title == 'owner' && strlen($arg) < 50) {
+        self::error('The owner-id must be longer than 50 characters.');
       }
     }
   }
@@ -232,6 +274,8 @@ WHERE list_id = %list_id
    *   The id of the new list owner.
    * @param string $title
    *   Title given to the new list.
+   * @param string $type
+   *   The type of the list. See predefined list types above.
    * @param mixed $data
    *   Data to save about the list.
    *

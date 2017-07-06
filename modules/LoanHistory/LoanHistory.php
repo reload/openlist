@@ -1,11 +1,19 @@
 <?php
-
 /**
- * @file
- * Ting Object Ratings module.
+ * Ting Object Loan History module
  */
 
+/**
+ * OpenList Module LoanHistory
+ *
+ * Handle similarities in loan patterns
+ *
+ */
 class LoanHistory extends Module {
+  /**
+   * Module Version
+   * @ignore
+   */  
   public $version = 1;
 
   /**
@@ -15,6 +23,7 @@ class LoanHistory extends Module {
 
   /**
    * Abstract getEvents().
+   * @ignore
    */
   public function getEvents() {
     return array(
@@ -24,9 +33,23 @@ class LoanHistory extends Module {
   }
   
   /**
-   * Get suggestions, depending on a given object.
+   * Get suggestions, depending on a given object_id based on frequency in other lists. (ADHL)
+   *
+   * @param string $object_id 
+   *   The object_id to fetch ADHL suggestions for.
+   * @param string $owner
+   *   Optionally exclude this owner from aggregated results.
+   * @param int $limit
+   *   Limit number of results (max 256)
+   *
    */
   public function getSuggestion($object_id, $owner = FALSE, $limit = 12) {
+    if ($limit > 256) {
+      $limit = 256;
+    }
+    if ($limit < 0) {
+      $limit = 1;
+    }
     if ($owner !== FALSE) {
       $owner_where = '
   AND t2.owner != "@owner"';
@@ -60,6 +83,7 @@ LIMIT
   
   /**
    * Reconstruct the tables
+   * @ignore
    */
   public function reconstruct($from = 0) {
     $from_created = date('Y-m-d', $from);
@@ -120,6 +144,7 @@ ORDER BY
 
   /**
    * On element deleted.
+   * @ignore
    */
   protected function onDeleteElement($element_id) {
     return TRUE;
@@ -127,6 +152,7 @@ ORDER BY
 
   /**
    * On element created.
+   * @ignore
    */
   protected function onElementCreated($element_id, $list_id, $data) {
     return TRUE;
@@ -134,6 +160,7 @@ ORDER BY
 
   /**
    * Create the module table on install.
+   * @ignore
    */
   protected function _install() {
     DB::q('
@@ -151,6 +178,7 @@ CREATE TABLE IF NOT EXISTS !table (
 
   /**
    * Remove the module table on uninstall.
+   * @ignore
    */
   protected function _uninstall() {
     DB::q('DROP TABLE IF EXISTS !table', array('!table' => $this->table));
