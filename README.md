@@ -28,6 +28,7 @@ Each library may implement an open_list client on their website and thereby shar
 
 OpenList owner ids are SHA256 hashes of local user ids salted with a prefix of choise
 
+```
   // Create a new list of some user
   createList("9f74d..", "My test list", $type = 'test');
 
@@ -39,3 +40,4 @@ OpenList owner ids are SHA256 hashes of local user ids salted with a prefix of c
 
   // Or for sync purposes add a unix timestamp since last sync
   getLists("9f74d..",1499335887)
+```
