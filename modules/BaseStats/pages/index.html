@@ -2,25 +2,25 @@
 <html>
 <head>
   <title>Openlist version 2.x.1.0</title>
-  
+
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   <script>
     $(function () {
-      $.getJSON('/json/callModule?module_name=BaseStats&admin&method=getTotalUsage', function (data) {
+      $.getJSON('/json/callModule?module_name=BaseStats&library_code=admin&method=getTotalUsage', function (data) {
         var lists = elements = 0;
-        
+
         for (var i in data) {
           lists += parseInt(data[i].lists, 10);
           elements += parseInt(data[i].elements, 10);
-          
-          
+
+
           $('#list-type').clone()
             .removeAttr('id')
             .removeClass('template')
             .find('> .citem .name').text(i).end()
             .find('> .citem .count').text(data[i].lists).end()
             .appendTo($('.list-types', $('.tl')));
-            
+
           $('#list-type').clone()
             .removeAttr('id')
             .removeClass('template')
@@ -28,14 +28,14 @@
             .find('> .citem .count').text(data[i].elements).end()
             .appendTo($('.list-types', $('.te')));
 
-          
+
         }
-        
+
         $('#total-lists .count').text(lists);
         $('#total-elements .count').text(elements);
       });
-      
-      $.getJSON('/json/callModule?module_name=BaseStats&admin&method=getMonthlyUsage', function (data) {
+
+      $.getJSON('/json/callModule?module_name=BaseStats&library_code=admin&method=getMonthlyUsage', function (data) {
         for (var year in data) {
           var elements = lists = 0,
             $year = $('#year').clone()
@@ -43,26 +43,26 @@
             .removeClass('template')
             .find('> .citem .name').text(year)
             .end();
-            
+
           for (var month in data[year]) {
             var $month = $('#month').clone()
               .removeAttr('id')
               .removeClass('template')
               .prependTo($('.months', $year));
-              
+
             var ml = me = 0;
-            
+
             for (var type in data[year][month]) {
               if (data[year][month][type].lists) {
                 lists += parseInt(data[year][month][type].lists, 10);
                 ml += parseInt(data[year][month][type].lists, 10);
               }
-              
+
               if (data[year][month][type].elements) {
                 elements += parseInt(data[year][month][type].elements, 10);
                 me += parseInt(data[year][month][type].elements, 10);
               }
-              
+
               $('#list-type-both').clone()
                 .removeAttr('id')
                 .removeClass('template')
@@ -71,18 +71,18 @@
                 .find('> .citem .count .elements').text(data[year][month][type].elements).end()
                 .appendTo($('.list-types', $month));
             }
-              
+
             $month.find('> .citem .name').text(month).end()
               .find('> .citem .count .lists').text(ml).end()
               .find('> .citem .count .elements').text(me).end()
           }
-          
+
           $year
             .find('> .citem .count .lists').text(lists).end()
             .find('> .citem .count .elements').text(elements).end()
             .prependTo('#years');
         }
-        
+
         $('a.citem').not('.linkout').bind('click', function (evt) {
           evt.preventDefault();
           $(this).next().slideToggle();
@@ -90,7 +90,7 @@
       });
     });
   </script>
-  
+
   <style>
     .wrap {
       width: 50%;
@@ -128,7 +128,7 @@
       float: left;
       width: 50%;
     }
-    
+
     .service .name {
       padding-left: 20px;
       margin-right: -20px;
@@ -137,20 +137,20 @@
       padding-left: 40px;
       margin-right: -40px;
     }
-    
+
     hr {
       margin: 20px 0;
     }
-    
+
     .template {
       display: none;
     }
-    
+
     .citem + div .citem .name {
       padding-left: 10px;
       box-sizing: border-box;
     }
-    
+
     .citem + div .citem + div .name {
       padding-left: 20px;
       box-sizing: border-box;
@@ -215,7 +215,7 @@
       </a>
       <div class="list-types"></div>
     </div>
-    
+
     <div class="te">
       <a id="total-elements" class="citem">
         <div class="name">Elements</div>
@@ -225,7 +225,7 @@
       <div class="list-types"></div>
     </div>
   </div>
-  
+
   <hr />
   <h2>Montly</h2>
   <div id="years"></div>
@@ -233,4 +233,3 @@
 
 </body>
 </html>
-

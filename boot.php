@@ -3,14 +3,22 @@
  * @file
  * Boot.
  */
+define('OPENLIST_VERSION', '1.1');
+
 require_once OPENLIST_ROOT . '/utils.php';
 
+
+// Fetch library code
 $GLOBALS['library_code'] = isset($_COOKIE['library_code']) ?
   $_COOKIE['library_code'] : (isset($_GET['library_code']) ?
     $_GET['library_code'] : FALSE);
 
+/**
+  * Status output for index file with no library code sent
+  */
+$out = array('OpenList Version ' .  OPENLIST_VERSION);
+
 if (!isset($library_codes[$GLOBALS['library_code']])) {
-  $out = array('OpenList V1.0');
   $out[] = 'Name:' . OPENLIST_INSTANCE_NAME;
   require_once OPENLIST_CLASSES_PATH . '/DB.php';
   $result = DB::q('SELECT VERSION();');
@@ -22,6 +30,27 @@ if (!isset($library_codes[$GLOBALS['library_code']])) {
   exit(implode("<br>\n", $out));
 }
 
+/**
+  * Authentication
+  */
+
+// Fetch authkey
+$authkey = isset($_COOKIE['authkey']) ?
+  $_COOKIE['authkey'] : (isset($_GET['authkey']) ?
+    $_GET['authkey'] : FALSE);
+
+// Fetch current library
+$lib = $library_codes[$GLOBALS['library_code']];
+
+if (OPENLIST_REQUIRE_AUTHKEY) {
+  // Require matching authkeys
+  if ($authkey != $lib['authkey'] ) {
+    header("HTTP/1.1 401 Unauthorized");
+    exit;
+  }
+}
+ 
+// Full boot
 require_once OPENLIST_CLASSES_PATH . '/Dev.php';
 require_once OPENLIST_CLASSES_PATH . '/DB.php';
 require_once OPENLIST_CLASSES_PATH . '/EventHandler.php';

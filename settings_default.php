@@ -56,6 +56,9 @@ define('IS_LOCAL', isset($_POST['local']));
 // this switch does just that.
 define('ENABLE_TEST_RESULTS', TRUE);
 
+// Require authkey for access per library code
+define('OPENLIST_REQUIRE_AUTHKEY', FALSE);
+
 /**
  * IP filter used by the IPAccess module.
  */
