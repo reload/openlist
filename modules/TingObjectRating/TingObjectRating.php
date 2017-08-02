@@ -38,7 +38,7 @@ class TingObjectRating extends Module {
   /**
    * Get popular objects.
    *
-   * @param string $month 
+   * @param string $month
    *   The month to retreive popular materials from in the format YYYYMM
    * @param string $libcode
    *   Optional library code, default is all libraries
@@ -94,7 +94,7 @@ LIMIT 0, !limit',
   /**
    * Get suggestions, depending on a given object_id based on similar high ratings. (ADHR)
    *
-   * @param string $object_id 
+   * @param string $object_id
    *   The object_id to fetch ADHR suggestions for.
    * @param string $owner
    *   Optionally exclude this owner from aggregated results.
@@ -136,8 +136,8 @@ GROUP BY
   /**
    * Get an object aggregated rating.
    *
-   * @param string $object_id 
-   *   The object_id to fetch aggregated rating for
+   * @param string $object_id
+   *   The object_id to fetch aggregated rating for.
    */
   public function getRating($object_id) {
     $result = DB::q('
@@ -156,7 +156,39 @@ GROUP BY
   }
 
   /**
+   * Get the aggregated rating of multiple objects.
+   *
+   * @param string $object_ids
+   *   The object_ids to fetch aggregated rating for.
+   */
+  public function getRatings($object_ids = array()) {
+    foreach ($object_ids as &$object_id) {
+      $object_id = DB::$db->real_escape_string($object_id);
+    }
+
+    $result = DB::q('
+SELECT object_id, AVG(rating) AS rating
+FROM !table
+WHERE
+  object_id IN ("!object_ids")
+GROUP BY
+  object_id
+    ', array(
+      '!table' => $this->table,
+      '!object_ids' => implode('", "', $object_ids),
+    ));
+
+    $buffer = array();
+    while ($row = $result->fetch_assoc()) {
+      $buffer[$row['object_id']] = (float) $row['rating'];
+    }
+
+    return $buffer;
+  }
+
+  /**
    * Get rated objects from a specific date.
+   *
    * @ignore
    */
   public function getRated($date = FALSE) {

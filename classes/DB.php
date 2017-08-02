@@ -9,7 +9,7 @@ class DB {
 
   private static $history = array();
 
-  private static $db;
+  public static $db;
 
   /**
    * Initialize.
