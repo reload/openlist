@@ -16,6 +16,7 @@ Each library may implement an open_list client on their website and thereby shar
     Create MySql database for the service
     Run sql/openlist.sql into the db
     Copy settings_default.php to settings.php
+    Copy authkeys_default.php to authkeys.php and insert valid authkeys
     Create a virtual host with document root www/ and index.php
 
 ## API docs
