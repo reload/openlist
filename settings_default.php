@@ -57,7 +57,7 @@ define('IS_LOCAL', isset($_POST['local']));
 define('ENABLE_TEST_RESULTS', TRUE);
 
 // Require authkey for access per library code
-define('OPENLIST_REQUIRE_AUTHKEY', FALSE);
+define('OPENLIST_REQUIRE_AUTHKEY', TRUE);
 
 /**
  * IP filter used by the IPAccess module.

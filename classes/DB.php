@@ -100,6 +100,9 @@ class DB {
    */
   private static function parseArgument($key, $argument) {
     switch ($key[0]) {
+      case '$':
+        return "'" . self::$db->real_escape_string($argument) . "'";
+
       case '@':
         return self::$db->real_escape_string($argument);
 

@@ -21,10 +21,10 @@
  * - books_read : Read materials (TingMaterial ID)
  * - user_list : Personal material list (TingMaterial ID)
  *
- * Clients can define custom list types 
+ * Clients can define custom list types
  *
  * ## Identification of users
- * 
+ *
  * Users are identified in OpenList by the *owner*-id which should be a sha256 hash of a local id salted
  * by a local prefix.
  *
@@ -32,15 +32,15 @@
  * ```php
  * hash('sha512', $local_prefix . $local_id);
  * ```
- * In ding2 the openlist module (https://github.com/ding2/ding2/tree/master/modules/p2/ting_openlist) 
+ * In ding2 the openlist module (https://github.com/ding2/ding2/tree/master/modules/p2/ting_openlist)
  * implements a PHP client to the OpenList service and syncronizes with local Drupal entities.
  * From the local unique Drupal user name the OpenList identifier (owner) is created via prefix salting:
  * https://github.com/ding2/ding2/blob/master/modules/p2/ting_openlist/ting_openlist.module#L466
  *
  * Do not use CPR, Drupal uid, Cicero/Alma Loaner Id or similar local id's for user identification.
- * 
+ *
  * ## Testing the service
- * 
+ *
  * The API functions can be tested in the OpenList test client: http://test.openlist.ddbcms.dk/tools/client/
  *
  */
@@ -505,9 +505,11 @@ FROM lists
 WHERE
   owner = "@owner"
   AND modified > %from
+  AND library_code IN (?$library_access)
     ', array(
       '@owner' => $owner,
       '%from' => $from,
+      '?$library_access' => $GLOBALS['library_access'],
     ));
 
     if ($result) {
@@ -548,10 +550,12 @@ FROM elements e JOIN lists l ON (e.list_id = l.list_id)
 WHERE
   l.owner = "@owner"
   AND e.modified > %from
+  AND e.library_code IN (?$library_access)
 ORDER BY e.list_id, e.status ASC, e.weight
     ', array(
       '@owner' => $owner,
       '%from' => $from,
+      '?$library_access' => $GLOBALS['library_access'],
     ));
 
     if ($result) {
@@ -596,10 +600,12 @@ FROM elements e
 WHERE
   e.list_id = %list_id
   AND e.modified > %from
+  AND e.library_code IN (?$library_access)
 ORDER BY weight ASC
     ', array(
       '%list_id' => $list_id,
       '%from' => $from,
+      '?$library_access' => $GLOBALS['library_access'],
     ));
 
     if ($result) {
@@ -847,6 +853,16 @@ WHERE
     }
 
     self::error('', TRUE);
+  }
+
+  /**
+   * A simple ping/pong test.
+   *
+   * @return string
+   *   Returns pong.
+   */
+  public function ping() {
+    return 'pong';
   }
 
   /**

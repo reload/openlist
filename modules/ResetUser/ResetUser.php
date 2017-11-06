@@ -36,6 +36,7 @@ class ResetUser extends Module {
 UPDATE lists
 SET status = 0, modified = UNIX_TIMESTAMP()
 WHERE owner = "@owner"
+  AND status != 0
       ', array('@owner' => $owner));
 
     if ($result) {
