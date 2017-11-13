@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  web:
+    build: ./docker
+    ports:
+      - '80'
+    volumes:
+      - './:/var/www/html'
+    links:
+      - db
+    environment:
+      VIRTUAL_HOST: openlist.docker
+
+  db:
+    image: mariadb:10
+    ports:
+      - '3306'
+    volumes:
+      - './db:/docker-entrypoint-initdb.d'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db
+      MYSQL_USER: db
+      MYSQL_PASSWORD: db
