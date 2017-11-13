@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Databse handling
+ * Database handling
  */
 
 class DB {
@@ -54,9 +54,11 @@ class DB {
    *   The position of the history entry you want. In this case the last entry
    *   of the list is 1 (which is default). If you set this to 0 you'll get the
    *   complete list.
+   *
+   * @return array|mixed
    */
   public static function getHistory($pos = 1) {
-    if ($pos == 0) {
+    if ($pos === 0) {
       return self::$history;
     }
 
@@ -97,6 +99,8 @@ class DB {
    *   The key of, which have a specific prefix.
    * @param string $argument
    *   The value.
+   *
+   * @return int|null|string
    */
   private static function parseArgument($key, $argument) {
     switch ($key[0]) {
@@ -135,7 +139,7 @@ class DB {
    *   normal query() function.
    *
    * @return mixed
-   *   Depending on what kind of SQL query you're executing, it will reutn
+   *   Depending on what kind of SQL query you're executing, it will return
    *   a mysqli_result class (for SELECTS) and boolean (for UPDATE, DELETE and
    *   any multi query).
    */
