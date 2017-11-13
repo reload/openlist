@@ -6,18 +6,37 @@ SOAP/REST service handling user list elements in Danish libraries.
 
 Each library may implement an open_list client on their website and thereby share certain user data between all library websites using the Open List service.
 
-## Server Requirements
+## Requirements
   * PHP 5.3.3+
   * Mysql 5.7+
-  * Zend Engine 2.3+ (For WDSL auto discover)
+  * [Composer](https://getcomposer.org)
 
-## Install
+## Manual installation
 
-    Create MySql database for the service
-    Run sql/openlist.sql into the db
-    Copy settings_default.php to settings.php
-    Copy authkeys_default.php to authkeys.php and insert valid authkeys
-    Create a virtual host with document root www/ and index.php
+* Create MySQL database for the service
+* Import db/openlist.sql into the DB
+* Copy settings.default.php to settings.php and insert valid DB information 
+* Copy authkeys.default.php to authkeys.php and insert valid authkeys
+* Create a virtual host
+* Run composer install
+* Create empty file in xml/wsdl.xml
+    
+## Docker development environment
+
+Stop local running instances of web servers, database servers and DNS servers.
+
+Otherwise you might encounter conflicts.
+
+### Requirements
+* [Docker](https://www.docker.com/community-edition)
+* [Dory](https://github.com/FreedomBen/dory)
+* [Ruby 2.4+](https://www.ruby-lang.org/en/downloads/)
+
+### Get running
+* Run `dory up`
+* Run `composer install`
+* Run `docker-compose up`
+* You now have Openlist running at http://openlist.docker
 
 ## API docs
   http://test.openlist.ddbcms.dk/doc/classes/OpenList.html
