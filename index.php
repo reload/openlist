@@ -16,6 +16,8 @@
  * http://dk.php.net/manual/en/class.soapserver.php
  */
 
+require './vendor/autoload.php';
+set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . '/vendor/bombayworks/zendframework1/library');
 require_once 'settings.php';
 
 if (!isset($_GET['wsdl'])) {

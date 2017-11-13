@@ -169,8 +169,6 @@ else {
       EventHandler::trigger('boot');
 
       if (!IS_LOCAL) {
-        require_once 'Zend/Soap/Server.php';
-
         ini_set("soap.wsdl_cache_enabled", WSDL_CACHE_NONE);
         ini_set('soap.wsdl_cache_ttl', 0);
 

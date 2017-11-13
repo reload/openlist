@@ -16,7 +16,6 @@ if (FALSE && filemtime(OPENLIST_CLASSES_PATH . '/OpenList.php') < filemtime(WSDL
 }
 else {
   try {
-    require_once 'Zend/Soap/AutoDiscover.php';
     require_once OPENLIST_CLASSES_PATH . '/OpenList.php';
 
     $autodiscover = new Zend_Soap_AutoDiscover();
