@@ -5,9 +5,9 @@
  */
 
 class DB {
-  private static $qCounter = 0;
+  public static $qCounter = 0;
 
-  private static $history = array();
+  public static $history = array();
 
   public static $db;
 
@@ -58,7 +58,7 @@ class DB {
    * @return array|mixed
    */
   public static function getHistory($pos = 1) {
-    if ($pos === 0) {
+    if ($pos == 0) {
       return self::$history;
     }
 
