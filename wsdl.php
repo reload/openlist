@@ -24,6 +24,14 @@ else {
     if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
       $protocol = 'https';
     }
+
+    if (!file_exists(WSDL_LOCAL_PATH)) {
+      if (!mkdir(OPENLIST_ROOT . '/xml') && !is_dir(OPENLIST_ROOT . '/xml')) {
+        throw new \RuntimeException(sprintf('Directory "%s" was not created', OPENLIST_ROOT . '/xml'));
+      }
+      touch(WSDL_LOCAL_PATH);
+    }
+
     $autodiscover->setClass('OpenList');
     $autodiscover->setUri($protocol . '://' . $_SERVER['HTTP_HOST']);
     $autodiscover->dump(WSDL_LOCAL_PATH);

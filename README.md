@@ -19,8 +19,7 @@ Each library may implement an open_list client on their website and thereby shar
 * Copy authkeys.default.php to authkeys.php and insert valid authkeys
 * Create a virtual host
 * Run composer install
-* Create empty file in xml/wsdl.xml
-    
+
 ## Docker development environment
 
 Stop local running instances of web servers, database servers and DNS servers.
@@ -29,8 +28,8 @@ Otherwise you might encounter conflicts.
 
 ### Requirements
 * [Docker](https://www.docker.com/community-edition)
+* [Ruby 2.4+](https://www.ruby-lang.org/en/downloads/) (2.4+ is required for Dory)
 * [Dory](https://github.com/FreedomBen/dory)
-* [Ruby 2.4+](https://www.ruby-lang.org/en/downloads/)
 
 ### Get running
 * Run `dory up`
@@ -51,7 +50,7 @@ Otherwise you might encounter conflicts.
 
 ## Quick start
 
-OpenList owner ids are SHA256 hashes of local user ids salted with a prefix of choise
+OpenList owner ids are SHA256 hashes of local user ids salted with a prefix of choice
 
 ```
   // Create a new list of some user
