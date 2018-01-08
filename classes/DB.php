@@ -5,9 +5,9 @@
  */
 
 class DB {
-  public static $qCounter = 0;
+  private static $qCounter = 0;
 
-  public static $history = array();
+  private static $history = array();
 
   public static $db;
 
