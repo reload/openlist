@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  web:
+    environment:
+      VIRTUAL_HOST: openlist.docker
+      # Set this to enable Xdebug with Docker for Mac.
+      #XDEBUG_CONFIG: "remote_connect_back=0 remote_host=docker.for.mac.localhost"
