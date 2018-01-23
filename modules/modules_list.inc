@@ -15,3 +15,4 @@ require_once MODULES_PATH . '/ListPermission/ListPermission.php';
 require_once MODULES_PATH . '/SlowLogger/SlowLogger.php';
 require_once MODULES_PATH . '/LoanHistory/LoanHistory.php';
 require_once MODULES_PATH . '/ListStats/ListStats.php';
+require_once MODULES_PATH . '/LocalAnalysis/LocalAnalysis.php';
