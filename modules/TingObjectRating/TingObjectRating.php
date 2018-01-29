@@ -53,7 +53,7 @@ class TingObjectRating extends Module {
       $limit = 1;
     }
 
-    if ($libcode !== FALSE) {
+    if (!empty($libcode)) {
       $libcode_where = '
   AND library_code = "@libcode"';
     }
