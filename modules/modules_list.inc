@@ -16,3 +16,4 @@ require_once MODULES_PATH . '/SlowLogger/SlowLogger.php';
 require_once MODULES_PATH . '/LoanHistory/LoanHistory.php';
 require_once MODULES_PATH . '/ListStats/ListStats.php';
 require_once MODULES_PATH . '/LocalAnalysis/LocalAnalysis.php';
+require_once MODULES_PATH . '/TingQuery/TingQuery.php';

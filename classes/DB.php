@@ -81,7 +81,7 @@ class DB {
    *
    * @see parseArgument()
    */
-  private static function parseSql($sql, $args) {
+  public static function parseSql($sql, $args) {
     // Run through the arguments, and parse them through our cleaner.
     foreach ($args as $key => $value) {
       $args[$key] = self::parseArgument($key, $value);
