@@ -216,11 +216,14 @@ VALUES ("@owner", "@library_code")
     $result = DB::q('
 UPDATE elements
 SET data = "@data", modified = UNIX_TIMESTAMP(), library_code = "@library_code"
-WHERE element_id = %element_id
+WHERE
+  element_id = %element_id
+  AND library_code IN (?$library_access)
     ', array(
       '%element_id' => $element_id,
       '@data' => serialize($data),
       '@library_code' => $GLOBALS['library_code'],
+      '?$library_access' => $GLOBALS['library_access'],
     ));
 
     if ($result) {
@@ -338,7 +341,7 @@ VALUES ("@owner", "@title", "@type", UNIX_TIMESTAMP(), "@data", "@library_code")
    * @return mixed
    *   The element_id for the newly created element.
    */
-  public function createElement($list_id, $data) {
+  public function createElement($list_id, $data, $return_element = FALSE) {
     self::errorCheckArguments(array(
       'list_id' => $list_id,
     ));
@@ -387,7 +390,12 @@ WHERE e.element_id = %element_id
 
       EventHandler::trigger(__FUNCTION__, array($insert_id, $list_id, $data));
 
-      return $insert_id;
+      if ($return_element) {
+        return self::createElementData($insert_id);
+      }
+      else {
+        return $insert_id;
+      }
     }
 
     switch (DB::errno()) {
@@ -666,7 +674,7 @@ ORDER BY weight ASC
     // The element that used to be the element being moved next element.
 
     // Place the element at the beginning of the list if $previous_id is 0.
-    if ($previous_id === 0) {
+    if (empty($previous_id)) { // === 0) {
       $data = DB::q('
 SELECT first.element_id as first_id, one.element_id as old_next_id
 FROM elements first
@@ -863,6 +871,161 @@ WHERE
    */
   public function ping() {
     return 'pong';
+  }
+
+  public function getList($list_id) {
+    self::errorCheckArguments(array(
+      'list_id' => $list_id,
+    ));
+
+    $list = DB::q('
+SELECT list_id, type, title, modified, owner, data
+FROM lists
+WHERE
+  library_code IN (?$library_access)
+  AND list_id = %list_id
+  AND status = 1
+LIMIT 1
+    ', array(
+      '%list_id' => $list_id,
+      '?$library_access' => $GLOBALS['library_access'],
+    ))->fetch_assoc();
+
+    if ($list === NULL) {
+      return FALSE;
+    }
+
+    return self::createListData($list);
+  }
+
+  public function getListsByType($types, $user, $expanded = FALSE) {
+    self::errorCheckArguments(array(
+      'user' => $user,
+    ));
+
+    $result = array();
+
+    $types_where = '';
+    if (!empty($types)) {
+      $types_where = 'AND l.type IN (?$types)';
+    } else {
+      $types = array();
+    }
+
+    $lists = DB::q('
+(SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data, GREATEST(l.modified, COALESCE(0, MAX(e.modified))) AS emod
+FROM
+  lists l
+  JOIN m_list_user_permission up ON (up.list_id = l.list_id AND up.user = "@user" AND up.permission = "edit")
+  LEFT JOIN elements e ON (e.list_id = l.list_id)
+WHERE
+  l.library_code IN (?$library_access)
+  ' . $types_where . '
+  AND l.status = 1
+  AND l.type NOT IN ("follow_user", "follow")
+GROUP BY
+  l.list_id)
+UNION
+(SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data, GREATEST(l.modified, COALESCE(0, MAX(e.modified))) AS emod
+FROM
+  lists l
+  LEFT JOIN elements e ON (e.list_id = l.list_id)
+WHERE
+  l.library_code IN (?$library_access)
+  ' . $types_where . '
+  AND l.owner = "@user"
+  AND l.status = 1
+  AND l.type NOT IN ("follow_user", "follow")
+GROUP BY
+  l.list_id)
+
+ORDER BY
+  emod DESC, modified DESC
+    ', array(
+      '?$types' => $types,
+      '@user' => $user,
+      '?$library_access' => $GLOBALS['library_access'],
+    ));
+
+    while ($list = $lists->fetch_assoc()) {
+      $result[$list['list_id']] = self::createListData($list, $expanded);
+    }
+
+    return $result;
+  }
+
+  public static function createListData($list, $expanded = TRUE) {
+    $list['elements'] = [];
+    $data = unserialize($list['data']);
+
+    // Old format.
+    if (isset($data['more'])) {
+      $list['data'] = [];
+
+      if (!empty($data['fields'])) {
+        foreach ($data['fields'] as $field) {
+          switch ($field['name']) {
+            case 'field_notes':
+              $list['data']['note'] = $field['value'];
+              break;
+
+            case 'field_ding_list_status':
+              $list['data']['visibility'] = $field['value'];
+              break;
+          }
+        }
+      }
+    }
+    else {
+      $list['data'] = $data;
+    }
+
+    if ($expanded) {
+      $elements = DB::q('
+SELECT e.*
+FROM elements e
+WHERE
+  e.list_id = %list_id
+  AND e.library_code IN (?$library_access)
+  AND e.status = 1
+ORDER BY weight DESC
+LIMIT 200
+      ', array(
+        '%list_id' => $list['list_id'],
+        '?$library_access' => $GLOBALS['library_access'],
+      ));
+
+      while ($element = $elements->fetch_assoc()) {
+        $list['elements'][$element['element_id']] = self::createElementData($element);
+      }
+    }
+
+    return $list;
+  }
+
+  public static function createElementData($element_data) {
+    $element = array();
+
+    if (is_numeric($element_data)) {
+      $element_data = DB::q(
+        'SELECT * FROM elements e WHERE element_id = %element_id',
+        array('%element_id' => $element_data)
+      )->fetch_assoc();
+    }
+
+    $data = unserialize($element_data['data']);
+    $element = array(
+      'list_id' => $element_data['list_id'],
+      'element_id' => $element_data['element_id'],
+      'weight' => $element_data['weight'],
+      'value' => $data['value'],
+      'type' => $data['type'],
+      'modified' => $element_data['modified'],
+      'created' => $element_data['created'],
+      'data' => array_diff_key($data, array_flip(['value', 'type'])),
+    );
+
+    return $element;
   }
 
   /**

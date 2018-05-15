@@ -113,7 +113,10 @@ WHERE
   AND t1.rating = 5
   AND t2.object_id != t1.object_id' . $owner_where . '
 GROUP BY
-  t2.object_id',
+  t2.object_id
+ORDER BY counts DESC
+LIMIT 50
+  ',
     array(
       '!table' => $this->table,
       '@object_id' => $object_id,
@@ -152,7 +155,9 @@ GROUP BY
       '@object_id' => $object_id,
     ));
 
-    return (float) $result->fetch_object()->rating;
+    $o = $result->fetch_object();
+
+    return isset($o->rating) ? ( (float) $o->rating ) : 0;
   }
 
   /**
