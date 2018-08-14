@@ -3,7 +3,7 @@
  * @file
  * Boot.
  */
-define('OPENLIST_VERSION', '2.0.0');
+define('OPENLIST_VERSION', '2.0.1');
 
 require_once OPENLIST_ROOT . '/utils.php';
 
