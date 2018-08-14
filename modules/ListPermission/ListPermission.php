@@ -99,12 +99,17 @@ LIMIT 1
     }
 
     $lists = DB::q('
-SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data
+SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data, COUNT(e.list_id) count__elements, l.status
 FROM lists l JOIN !table lp ON (lp.list_id = l.list_id)
+LEFT JOIN elements e ON (e.list_id = l.list_id)
 WHERE
   l.library_code IN (?$library_access)
   AND lp.permission = "public"
   AND l.status = 1
+GROUP BY
+  l.list_id
+HAVING
+  count__elements > 1
   ' . $title_where . '
     ', array(
       '!table' => $this->table,

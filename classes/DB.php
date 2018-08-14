@@ -160,7 +160,7 @@ class DB {
       'time' => microtime(TRUE) - $startTime,
     );
 
-    if (!$result) {
+    if (!$result && isset($backtrace[1])) {
       $backtrace = debug_backtrace();
       self::$history[self::$qCounter]['error'] = array(
         'number' => self::$db->errno,

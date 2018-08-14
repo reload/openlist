@@ -45,18 +45,27 @@ class Query extends Module {
    * @return array
    *   List IDs where the ting object is present.
    */
-  public function getLists($value, $list_types) {
+  public function getLists($value, $list_types = [], $public = TRUE) {
+    if (!empty($list_types)) {
+      $types = 'AND l.type IN (?$list_types)';
+    }
+
+    $pubjoin = '';
+    if ($public === TRUE) {
+      $pubjoin = 'JOIN m_list_permission mlp ON (mlp.list_id = l.list_id AND mlp.permission = "public")';
+    }
+
     $result = DB::q('
-SELECT
-  DISTINCT e.list_id
+SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data
 FROM
   elements e
   JOIN !table tq ON (e.element_id = tq.element_id)
   JOIN lists l ON (l.list_id = e.list_id)
+  ' . $pubjoin . '
 WHERE
   tq.value = "@value"
   AND l.library_code IN (?$library_access)
-  AND l.type IN (?$list_types)
+  ' . $types . '
 ORDER BY
   e.list_id
     ', array(
@@ -68,8 +77,8 @@ ORDER BY
 
     $buffer = array();
 
-    while ($row = $result->fetch_assoc()) {
-      $buffer[] = $row['list_id'];
+    while ($list = $result->fetch_assoc()) {
+      $buffer[$list['list_id']] = OpenList::createListData($list);
     }
 
     return $buffer;
@@ -105,11 +114,12 @@ WHERE
     $result = DB::$db->query($sql);
 
     while ($row = $result->fetch_assoc()) {
-      if (empty($data['value'])) {
-        continue;
-      }
-
       $data = unserialize($row['data']);
+
+      // if (empty($data['value'])) {
+      //   continue;
+      // }
+
       DB::q('
 INSERT INTO !table
 (element_id, value)
