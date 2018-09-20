@@ -88,6 +88,25 @@ LIMIT 1
   }
 
   /**
+   * Set the not_public property.
+   */
+  public function setNotPublic($list_id, $value = TRUE) {
+    DB::q('
+INSERT INTO !table
+(list_id, not_public)
+VALUES (%list_id, %not_public)
+ON DUPLICATE KEY UPDATE
+not_public = %not_public
+      ', array(
+        '!table' => $this->table,
+        '%not_public' => $value,
+        '%list_id' => $list_id,
+      ));
+
+    return TRUE;
+  }
+
+  /**
    * Get public lists.
    */
   public function getPublicLists($title = '') {
@@ -105,6 +124,7 @@ LEFT JOIN elements e ON (e.list_id = l.list_id)
 WHERE
   l.library_code IN (?$library_access)
   AND lp.permission = "public"
+  AND lp.not_public != 1
   AND l.status = 1
 GROUP BY
   l.list_id
@@ -159,6 +179,10 @@ permission = "@permission"
         '@permission' => $data['visibility'],
         '%list_id' => $list_id,
       ));
+    }
+
+    if (isset($data['not_public'])) {
+      $this->setNotPublic($list_id, $data['not_public']);
     }
 
     return TRUE;

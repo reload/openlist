@@ -52,7 +52,7 @@ class Query extends Module {
 
     $pubjoin = '';
     if ($public === TRUE) {
-      $pubjoin = 'JOIN m_list_permission mlp ON (mlp.list_id = l.list_id AND mlp.permission = "public")';
+      $pubjoin = 'JOIN m_list_permission mlp ON (mlp.list_id = l.list_id AND mlp.permission = "public" AND mlp.not_public != 1)';
     }
 
     $result = DB::q('
