@@ -118,7 +118,7 @@ not_public = %not_public
     }
 
     $lists = DB::q('
-SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data, COUNT(e.list_id) count__elements, l.status
+SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data, COUNT(e.list_id) count__elements, l.status, GREATEST(l.modified, COALESCE(0, MAX(e.modified))) AS emod
 FROM lists l JOIN !table lp ON (lp.list_id = l.list_id)
 LEFT JOIN elements e ON (e.list_id = l.list_id)
 WHERE
@@ -130,6 +130,8 @@ GROUP BY
   l.list_id
 HAVING
   count__elements > 1
+ORDER BY
+  emod DESC
   ' . $title_where . '
     ', array(
       '!table' => $this->table,
