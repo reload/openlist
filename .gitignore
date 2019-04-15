@@ -2,4 +2,6 @@ settings.php
 authkeys.php
 xml/wsdl.xml
 doc
+.vscode
 vendor
+temp

@@ -45,6 +45,10 @@ class LoanHistory extends Module {
    *
    */
   public function getSuggestion($object_id, $owner = FALSE, $limit = 12) {
+
+  // Test results:
+  // $object_id = "870970-basis:26917921";
+
     if ($limit > 256) {
       $limit = 256;
     }

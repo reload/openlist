@@ -23,32 +23,127 @@ class ListPermission extends Module {
     );
   }
 
+  public function listPermissions($list_id) {
+    $permissions = [];
+
+    $result = DB::q('
+SELECT user, permission
+FROM m_list_user_permission
+WHERE
+list_id = %list_id
+    ', array(
+      '%list_id' => $list_id,
+    ));
+
+    while ($row = $result->fetch_assoc()) {
+      $permissions[$row->user] = $row;
+    }
+
+    return $permissions;
+  }
+
+  public function removePermission($user, $list_id) {
+    DB::q("
+DELETE FROM m_list_user_permission
+WHERE
+  user = '@user'
+  AND list_id = %list_id
+    ", array(
+      '@user' => $user,
+      '%list_id' => $list_id,
+    ));
+  }
+
+  public function setPermission($user, $list_id, $permission) {
+    DB::q("
+INSERT INTO m_list_user_permission
+(user, list_id, permission)
+VALUES ('@user', %list_id, '@permission')
+ON DUPLICATE KEY UPDATE permission = '@permission'
+    ", array(
+      '@user' => $user,
+      '%list_id' => $list_id,
+      '@permission' => $permission,
+    ));
+  }
+
+  public function getPermission($user, $list_id) {
+    $result = DB::q("
+SELECT permission
+FROM m_list_user_permission
+WHERE
+  user = '@user'
+  AND list_id = %list_id
+LIMIT 1
+    ", array(
+      '@user' => $user,
+      '%list_id' => $list_id,
+    ))->fetch_assoc();
+
+    if ($result) {
+      return $result;
+    }
+
+    return FALSE;
+  }
+
   /**
-   * Get alle public lists.
+   * Set the not_public property.
+   */
+  public function setNotPublic($list_id, $value = TRUE) {
+    DB::q('
+INSERT INTO !table
+(list_id, not_public)
+VALUES (%list_id, %not_public)
+ON DUPLICATE KEY UPDATE
+not_public = %not_public
+      ', array(
+        '!table' => $this->table,
+        '%not_public' => $value,
+        '%list_id' => $list_id,
+      ));
+
+    return TRUE;
+  }
+
+  /**
+   * Get public lists.
    */
   public function getPublicLists($title = '') {
-    $result = DB::q('
-SELECT l.list_id, l.type, l.title, l.modified, l.status, l.data
+    $result = array();
+
+    $title_where = '';
+    if (!empty($title)) {
+      $title_where = 'AND l.title LIKE "%@title%"';
+    }
+
+    $lists = DB::q('
+SELECT l.list_id, l.type, l.title, l.modified, l.owner, l.data, COUNT(e.list_id) count__elements, l.status, GREATEST(l.modified, COALESCE(0, MAX(e.modified))) AS emod
 FROM lists l JOIN !table lp ON (lp.list_id = l.list_id)
+LEFT JOIN elements e ON (e.list_id = l.list_id)
 WHERE
-  l.title LIKE "%@title%"
+  l.library_code IN (?$library_access)
   AND lp.permission = "public"
+  AND lp.not_public != 1
+  AND l.status = 1
+GROUP BY
+  l.list_id
+HAVING
+  count__elements > 1
 ORDER BY
-  l.title
+  emod DESC
+  ' . $title_where . '
     ', array(
       '!table' => $this->table,
       '@title' => $title,
+      '?$library_access' => $GLOBALS['library_access'],
     ));
 
-    if ($result) {
-      $lists = array();
-      while ($row = $result->fetch_assoc()) {
-        $row['data'] = unserialize($row['data']);
-
-        $lists[] = $row;
-      }
-      return $lists;
+    while ($list = $lists->fetch_assoc()) {
+      $result[$list['list_id']] = OpenList::createListData($list);
     }
+
+    return $result;
   }
 
   /**
@@ -71,6 +166,25 @@ VALUES (%list_id, "@permission")
           ));
         }
       }
+    }
+
+    // V2 handling.
+    if (!empty($data['visibility'])) {
+      DB::q('
+INSERT INTO !table
+(list_id, permission)
+VALUES (%list_id, "@permission")
+ON DUPLICATE KEY UPDATE
+permission = "@permission"
+      ', array(
+        '!table' => $this->table,
+        '@permission' => $data['visibility'],
+        '%list_id' => $list_id,
+      ));
+    }
+
+    if (isset($data['not_public'])) {
+      $this->setNotPublic($list_id, $data['not_public']);
     }
 
     return TRUE;
@@ -98,6 +212,21 @@ VALUES (%list_id, "@permission")
       }
     }
 
+    // V2 handling.
+    if (!empty($data['visibility'])) {
+      DB::q('
+INSERT INTO !table
+(list_id, permission)
+VALUES (%list_id, "@permission")
+ON DUPLICATE KEY UPDATE
+permission = "@permission"
+      ', array(
+        '!table' => $this->table,
+        '@permission' => $data['visibility'],
+        '%list_id' => $list_id,
+      ));
+    }
+
     return TRUE;
   }
 
@@ -115,6 +244,15 @@ CREATE TABLE IF NOT EXISTS m_list_permission (
 ) ENGINE=InnoDB;
     ', array('!table' => $this->table));
 
+    DB::q('
+CREATE TABLE IF NOT EXISTS m_list_user_permission (
+  user varchar(128) NOT NULL,
+  list_id int(11) NOT NULL,
+  permission varchar(32) NOT NULL,
+  PRIMARY KEY (user, list_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    ');
+
     return TRUE;
   }
 
@@ -126,6 +264,7 @@ CREATE TABLE IF NOT EXISTS m_list_permission (
 
     return TRUE;
   }
+
 }
 
 new ListPermission();

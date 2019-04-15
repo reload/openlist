@@ -3,7 +3,7 @@
  * @file
  * Boot.
  */
-define('OPENLIST_VERSION', '1.1');
+define('OPENLIST_VERSION', '2.0.1');
 
 require_once OPENLIST_ROOT . '/utils.php';
 
@@ -49,7 +49,7 @@ if (OPENLIST_REQUIRE_AUTHKEY) {
   //  header("HTTP/1.1 401 Unauthorized");
   //  exit('IP not whitelisted');
   //}
-  
+
   $GLOBALS['library_access'] = $authkeys[$authkey];
 }
 else {
