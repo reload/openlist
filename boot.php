@@ -6,6 +6,7 @@
 define('OPENLIST_VERSION', '2.0.1');
 
 require_once OPENLIST_ROOT . '/utils.php';
+require_once OPENLIST_ROOT . '/authkeys.php';
 
 // Fetch library code
 $GLOBALS['library_code'] = isset($_COOKIE['library_code']) ?
@@ -49,7 +50,6 @@ if (OPENLIST_REQUIRE_AUTHKEY) {
   //  header("HTTP/1.1 401 Unauthorized");
   //  exit('IP not whitelisted');
   //}
-
   $GLOBALS['library_access'] = $authkeys[$authkey];
 }
 else {
